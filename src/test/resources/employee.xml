@@ -1,0 +1,23 @@
+<employees>
+	<employee hireDate="02-13-2003">
+		<id>xzn-4578</id>
+		<firstName>John</firstName>
+		<lastName>Smith</lastName>
+		<addresses>
+			<address>
+				<street>2278 Poplar Ave.</street>
+				<city>Memphis</city>
+				<state>TN</state>
+				<postalCode>38015</postalCode>
+			</address>
+		</addresses>
+		<phone>
+			<mobile>9013838721</mobile>
+			<work>16158239743</work>
+		</phone>
+		<emails>
+			<email>john.smith@company.org</email>
+			<email>john.smith@business.com</email>
+		</emails>
+	</employee>
+</employees>
