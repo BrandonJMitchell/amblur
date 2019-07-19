@@ -1,6 +1,6 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
+	
 	<groupId>io.github.brandonjmitchell</groupId>
 	<artifactId>amblur</artifactId>
 	<version>1.0.0-SNAPSHOT</version>
@@ -27,8 +27,9 @@
 		<connection>scm:git:git://github.com/BrandonJMitchell/amblur.git</connection>
 		<developerConnection>scm:git:git@github.com:BrandonJMitchell/amblur.git</developerConnection>
 		<url>https://github.com/BrandonJMitchell/amblur</url>
+		<tag>amblur-1.0.0</tag>
 	</scm>
- 
+
 	<distributionManagement>
 		<snapshotRepository>
 			<id>ossrh</id>
@@ -137,7 +138,7 @@
 						<configuration>
 							<serverId>ossrh</serverId>
 							<nexusUrl>https://oss.sonatype.org/</nexusUrl>
-							<autoReleaseAfterClose>false</autoReleaseAfterClose>
+							<autoReleaseAfterClose>true</autoReleaseAfterClose>
 						</configuration>
 					</plugin>
 					<plugin>
