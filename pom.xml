@@ -3,7 +3,7 @@
 	
 	<groupId>io.github.brandonjmitchell</groupId>
 	<artifactId>amblur</artifactId>
-	<version>1.0.1</version>
+	<version>1.0.2-SNAPSHOT</version>
 	<name>${project.groupId}:${project.artifactId}</name>
 	<description>StAX parser that uses XPaths.</description>
 	<url>https://github.com/BrandonJMitchell/amblur</url>
@@ -27,7 +27,7 @@
 		<connection>scm:git:git://github.com/BrandonJMitchell/amblur.git</connection>
 		<developerConnection>scm:git:git@github.com:BrandonJMitchell/amblur.git</developerConnection>
 		<url>https://github.com/BrandonJMitchell/amblur</url>
-		<tag>amblur-1.0.1</tag>
+		<tag>amblur-1.0.0</tag>
 	</scm>
 
 	<distributionManagement>
