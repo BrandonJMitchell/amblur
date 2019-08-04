@@ -42,11 +42,11 @@ public class EmployeeParserTest {
 	
 	@Test
 	public void employeeParserTest() throws ParserException {
-		LOGGER.debug("*********** employeeParserTest **************");
 		List<Employee> employees = parser.parse(xml, new EmployeeRules());
-		employees.forEach(e -> {LOGGER.debug("employee => " + e);});
+		
 		
 		assertThat(employees, notNullValue());
+		employees.forEach(e -> {LOGGER.info("employee => " + e);});
 		assertThat(employees.size(), is(1));
 		assertThat(employees.get(0), notNullValue());
 		assertThat(employees.get(0).getHireDate(), is("02-13-2003"));

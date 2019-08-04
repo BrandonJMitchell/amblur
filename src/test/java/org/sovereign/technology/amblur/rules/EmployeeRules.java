@@ -19,6 +19,10 @@ public class EmployeeRules extends AbstractPaserRules {
 	private static final String PHONE_PREFACE = PREFACE + "+employee/+phone";
 	private static final String EMAIL_PREFACE = PREFACE + "+employee/+emails";
 	
+	public EmployeeRules() {
+		this.root = PREFACE;
+	}
+	
 	@Override
 	public Map<String, List<RulePlan>> getInstance() {
 	    if (rulesMap == null) {

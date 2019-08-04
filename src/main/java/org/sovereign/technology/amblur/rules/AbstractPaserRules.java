@@ -1,15 +1,18 @@
 package org.sovereign.technology.amblur.rules;
 
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sovereign.technology.amblur.exception.ParserException;
 import org.sovereign.technology.amblur.model.ParserRule;
 import org.sovereign.technology.amblur.model.RulePlan;
 import org.sovereign.technology.amblur.parliament.Parliament;
-
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -17,7 +20,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public abstract class AbstractPaserRules implements ParserRules {
 
+	@SuppressWarnings("unused")
+	private static final Logger LOGGER = LoggerFactory.getLogger(AbstractPaserRules.class);
+	
 	protected Map<String, List<RulePlan>> rulesMap;
+	protected String root;
 
 	@Override
 	public List<ParserRule> retrieveRules(String className) throws ParserException {
@@ -41,6 +48,36 @@ public abstract class AbstractPaserRules implements ParserRules {
 				rulesMap.values().stream().flatMap(Collection::stream).collect(Collectors.toList());
 
 		return Parliament.decree(plans);
+	}
+	
+	@Override
+	public Map<String, ParserRule> retrieveXpathMap() throws ParserException {
+		Map<String, ParserRule> xpathMap = new HashMap<>();
+		populateXpathMap(this.retrieveRules(), xpathMap);
+//		xpathMap.entrySet().forEach(entry -> {
+//			LOGGER.debug(entry.getKey() + " ::: " + entry.getValue().getXpath());
+//		});
+		return Collections.unmodifiableMap(xpathMap);
+	}
+
+	@Override
+	public void populateXpathMap(List<ParserRule> rules, Map<String, ParserRule> xpathMap) {
+		if (rules != null && !rules.isEmpty() && xpathMap != null) {
+			for(ParserRule rule : rules) {
+				if (rule != null) {
+					String xpath = Parliament.cleanXpath(rule.getXpath());
+					xpathMap.put(xpath, rule);
+					if (rule.getParserRules() != null && !rule.getParserRules().isEmpty()) {
+						populateXpathMap(rule.getParserRules(), xpathMap);
+					}
+				}
+			}
+		}
+	}
+
+	@Override
+	public String retrieveRoot() {
+		return this.root;
 	}
 
 }

@@ -8,9 +8,12 @@ import java.util.stream.Collectors;
 import org.sovereign.technology.amblur.exception.ParserException;
 import org.sovereign.technology.amblur.model.ParserRule;
 import org.sovereign.technology.amblur.model.RulePlan;
+import org.springframework.util.StringUtils;
 
 public class Parliament {
 
+	private static final List<String> SPECIAL_CHARACTERS = Arrays.asList("@","+");
+	
 	private Parliament() {}
 
 	public static List<ParserRule> decree(List<RulePlan> plans) throws ParserException {
@@ -47,9 +50,9 @@ public class Parliament {
 
 						// LOGGER.writeDebug("element => " + element);
 
-						boolean isAttribute = element.startsWith("@");
+						boolean isAttribute = element.startsWith(SPECIAL_CHARACTERS.get(0));
 
-						boolean isInstance = element.startsWith("+");
+						boolean isInstance = element.startsWith(SPECIAL_CHARACTERS.get(1));
 
 						boolean isNew = false;
 
@@ -258,6 +261,26 @@ public class Parliament {
 
 		}
 
+	}
+	
+	public static String cleanXpath(String xpath) {
+		String result = xpath;
+		for(String sChar : SPECIAL_CHARACTERS) {
+			result = StringUtils.delete(result, sChar);
+		}
+		
+		return result;
+	}
+	
+	public static String retrieveKey(StringBuilder xpathBuilder, String root) {
+		String result = xpathBuilder.toString();
+		if (!StringUtils.isEmpty(root)) {
+			int startIdx = xpathBuilder.indexOf(cleanXpath(root));
+			if (startIdx >= 0) {
+				result = xpathBuilder.substring(startIdx);
+			}
+		}
+		return result;
 	}
 
 }

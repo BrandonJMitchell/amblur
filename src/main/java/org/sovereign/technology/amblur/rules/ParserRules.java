@@ -13,4 +13,7 @@ public interface ParserRules {
 	public Map<String, List<RulePlan>> getInstance();
 	public List<ParserRule> retrieveRules(String className) throws ParserException;
 	public List<ParserRule> retrieveRules() throws ParserException;
+	public Map<String, ParserRule> retrieveXpathMap() throws ParserException;
+	public void populateXpathMap(List<ParserRule> rules, Map<String, ParserRule> xpathMap);
+	public String retrieveRoot();
 }

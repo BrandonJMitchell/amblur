@@ -21,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sovereign.technology.amblur.exception.ParserException;
 import org.sovereign.technology.amblur.model.ParserRule;
+import org.sovereign.technology.amblur.parliament.Parliament;
 import org.sovereign.technology.amblur.rules.ParserRules;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -52,14 +53,6 @@ public class ExecutiveParser {
 
 			try {
 
-				List<ParserRule> rules = parserRules.retrieveRules();
-
-				// String strRules = objectMapper.writeValueAsString(rules);
-
-				// LOGGER.debug("**** RULES => " + strRules);
-
-				// LOGGER.debug("**** xml => " + xml);
-
 				StringReader reader = new StringReader(xml);
 
 				XMLInputFactory xmlInputFactory = XMLInputFactory.newInstance();
@@ -72,7 +65,7 @@ public class ExecutiveParser {
 
 				XMLEventReader xmlEventReader = xmlInputFactory.createXMLEventReader(reader);
 
-				result = traverseXmlElements(xmlEventReader, rules, keepObj);
+				result = traverseXmlElements(xmlEventReader, parserRules.retrieveXpathMap(), parserRules.retrieveRoot(), keepObj);
 
 				xmlEventReader.close();
 
@@ -94,72 +87,6 @@ public class ExecutiveParser {
 			// LOGGER.debug("**** parseXML END TIME => " + end);
 
 			 LOGGER.debug("PARSED XML TOTAL TIME (Milliseconds) => " + (end - start));
-
-		}
-
-		return result;
-
-	}
-
-	private ParserRule findRuleByName(String localPart, List<ParserRule> rules,
-
-			boolean isInstance) {
-
-		ParserRule result = null;
-
-		if (!StringUtils.isEmpty(localPart)) {
-
-			for (ParserRule rule : rules) {
-
-				if (rule != null) {
-
-					if (rule.getElementName().equals(localPart)) {
-
-						if (isInstance) {
-
-							if (rule.isFound() && rule.isInstanceRule()) {
-
-								result = rule;
-
-								break;
-
-							}
-
-						} else {
-
-							if (!rule.isFound()) {
-
-								result = rule;
-
-								break;
-
-							} else {
-
-								if (rule.getParserRules() != null && !rule.getParserRules().isEmpty()) {
-
-									result = findRuleByName(localPart, rule.getParserRules(), isInstance);
-
-								}
-
-							}
-
-						}
-
-					} else {
-
-						if (rule.isFound() && rule.getParserRules() != null
-
-								&& !rule.getParserRules().isEmpty()) {
-
-							result = findRuleByName(localPart, rule.getParserRules(), isInstance);
-
-						}
-
-					}
-
-				}
-
-			}
 
 		}
 
@@ -264,9 +191,9 @@ public class ExecutiveParser {
 
 			InvocationTargetException, XMLStreamException {
 
-		// LOGGER.debug("setElementValue obj => " + obj);
+		// LOGGER.debug("setElement-Value obj => " + obj);
 
-		// LOGGER.debug("setElementValue rule => " + rule.getElementName() + " :::
+		// LOGGER.debug("setElement-Value rule => " + rule.getElementName() + " :::
 		// " +
 
 		// rule.getXpath());
@@ -306,11 +233,11 @@ public class ExecutiveParser {
 			} else {
 
 				if (xmlEventReader.hasNext()) {
+					XMLEvent peekEvent = xmlEventReader.peek();
 
-					xmlEvent = xmlEventReader.nextEvent();
-
-					if (xmlEvent.isCharacters()) {
-
+					if (peekEvent.isCharacters()) {
+						xmlEvent = xmlEventReader.nextEvent();
+						
 						String data = xmlEvent.asCharacters().getData();
 
 						method.invoke(obj, data);
@@ -327,13 +254,13 @@ public class ExecutiveParser {
 
 		}
 
-		if (rule.getParserRules() != null && !rule.getParserRules().isEmpty() && rule.isFound()) {
+		if (rule.getParserRules() != null && !rule.getParserRules().isEmpty()) {
 
 			// LOGGER.debug("Searching Children of => " + rule.getElementName());
 
 			List<ParserRule> attributeRules = rule.getParserRules().stream()
 
-					.filter(r -> r.isAttribute() && !r.isFound()).collect(Collectors.toList());
+					.filter(r -> r.isAttribute()).collect(Collectors.toList());
 
 			for (ParserRule attrRule : attributeRules) {
 
@@ -347,7 +274,7 @@ public class ExecutiveParser {
 
 	}
 
-	private <T> List<T> traverseXmlElements(XMLEventReader xmlEventReader, List<ParserRule> rules,
+	private <T> List<T> traverseXmlElements(XMLEventReader xmlEventReader, Map<String, ParserRule> rules, String root,
 
 			boolean isXml) throws NoSuchMethodException, IllegalAccessException,
 
@@ -360,6 +287,10 @@ public class ExecutiveParser {
 		Map<Class<T>, T> objMap = new HashMap<>();
 
 		Map<Class<T>, List<T>> objListMap = new HashMap<>();
+		
+		StringBuilder xpathBuilder = new StringBuilder();
+		
+		String seperator = "";
 
 		while (xmlEventReader.hasNext()) {
 
@@ -367,19 +298,22 @@ public class ExecutiveParser {
 
 			XMLEvent xmlEvent = xmlEventReader.nextEvent();
 
-			// LOGGER.debug("-----1 JUST KEEP SWIMMING------ " + rules.size());
 
 			if (xmlEvent.isStartElement()) {
 
 				localPart = xmlEvent.asStartElement().getName().getLocalPart();
+				
+				xpathBuilder = xpathBuilder.append(seperator).append(localPart);
+				
+				seperator = "/";
 
-				// LOGGER.debug("**** xmlEvent start localData => " + localPart);
+//				 LOGGER.debug("**** xmlEvent start localData => " + localPart + " ::: " + xpathBuilder.toString());
 
-				ParserRule currentRule = findRuleByName(localPart, rules, false);
+				ParserRule currentRule = rules.get(Parliament.retrieveKey(xpathBuilder, root));
 
 				if (currentRule != null) {
 
-					// LOGGER.debug("-----currentRule not null------");
+//					LOGGER.debug("-----currentRule FOUND------");
 
 					if (currentRule.isInstanceRule()) {
 
@@ -492,23 +426,15 @@ public class ExecutiveParser {
 
 				// LOGGER.debug("**** xmlEvent end rules => " + rules.size());
 
-				ParserRule currentRule = findRuleByName(localPart, rules, true);
+				ParserRule currentRule = rules.get(Parliament.retrieveKey(xpathBuilder, root));
 
 				if (currentRule != null && localPart.equals(currentRule.getElementName())
 
 						&& currentRule.isInstanceRule()) {
 
-					// LOGGER.debug(
+//					LOGGER.debug("**** RESET RULES xmlEvent localData => " + xmlEvent.asEndElement().getName().getLocalPart());
 
-					// "**** RESET RULES xmlEvent localData => "
-
-					// + xmlEvent.asEndElement().getName().getLocalPart());
-
-					// LOGGER.debug(
-
-					// "**** xmlEvent END rule => "
-
-					// + currentRule);
+//					LOGGER.debug( "**** xmlEvent END rule => " + currentRule);
 
 					resetRule(currentRule);
 
@@ -548,6 +474,7 @@ public class ExecutiveParser {
 
 				}
 
+				deleteLastPath(xpathBuilder, seperator);
 			}
 
 		}
@@ -560,6 +487,14 @@ public class ExecutiveParser {
 
 		return objListMap.get(parentClass);
 
+	}
+	
+	private void deleteLastPath(StringBuilder xpathBuilder, String seperator) {
+		int start = xpathBuilder.lastIndexOf(seperator);
+		int end = xpathBuilder.length();
+		if (start > 0 && start <= end) {
+			xpathBuilder = xpathBuilder.delete(start, end);
+		}
 	}
 
 	private <K> List<K> genericList(Class<K> type) {
