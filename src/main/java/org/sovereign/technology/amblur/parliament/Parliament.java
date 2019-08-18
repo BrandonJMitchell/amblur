@@ -89,6 +89,8 @@ public class Parliament {
 									.parentClazz(rulePlan.getParentClazz())
 
 									.removeObject(rulePlan.isRemoveObject())
+									
+									.removeLists(rulePlan.getRemoveLists())
 
 									.build();
 

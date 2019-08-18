@@ -1,5 +1,6 @@
 package org.sovereign.technology.amblur.unit;
 
+
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
@@ -11,21 +12,25 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sovereign.technology.amblur.exception.ParserException;
 import org.sovereign.technology.amblur.model.Employee;
 import org.sovereign.technology.amblur.parser.ExecutiveParser;
 import org.sovereign.technology.amblur.rules.EmployeeRules;
 import org.sovereign.technology.amblur.utils.AmblurTestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
+@ActiveProfiles({"test"})
 public class EmployeeParserTest {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(EmployeeParserTest.class);
-	
+	@Autowired
+	private ObjectMapper mapper;
 	@Autowired
 	private ExecutiveParser parser;
 	
@@ -33,21 +38,23 @@ public class EmployeeParserTest {
 	
 	@Before
 	public void setup() {
-		String fileName = "employee.xml";
-		String path = "src/test/resources/";
+		final String fileName = "employee.xml";
+		final String path = "src/test/resources/";
 		
 		xml = AmblurTestUtils.retrieveContent(path, fileName);
 		assertThat(xml, notNullValue());
 	}
 	
 	@Test
-	public void employeeParserTest() throws ParserException {
+	public void employeeParserTest() throws Exception {
 		List<Employee> employees = parser.parse(xml, new EmployeeRules());
 		
 		
 		assertThat(employees, notNullValue());
-		employees.forEach(e -> {LOGGER.info("employee => " + e);});
-		assertThat(employees.size(), is(1));
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info(mapper.writeValueAsString(employees));
+		}
+		assertThat(employees.size(), is(2));
 		assertThat(employees.get(0), notNullValue());
 		assertThat(employees.get(0).getHireDate(), is("02-13-2003"));
 		assertThat(employees.get(0).getId(), is("xzn-4578"));
@@ -69,5 +76,59 @@ public class EmployeeParserTest {
 		assertThat(employees.get(0).getEmails().get(0).getValue(), is("john.smith@company.org"));
 		assertThat(employees.get(0).getEmails().get(1), notNullValue());
 		assertThat(employees.get(0).getEmails().get(1).getValue(), is("john.smith@business.com"));
+		assertThat(employees.get(0).getExpertises(), notNullValue());
+		assertThat(employees.get(0).getExpertises().get(0), notNullValue());
+		assertThat(employees.get(0).getExpertises().get(0).getName(), is("IT Manager"));
+		assertThat(employees.get(0).getExpertises().get(0).getSkills(), notNullValue());
+		assertThat(employees.get(0).getExpertises().get(0).getSkills().size(), is(2));
+		assertThat(employees.get(0).getExpertises().get(0).getSkills().get(0), notNullValue());
+		assertThat(employees.get(0).getExpertises().get(0).getSkills().get(0).getName(), is("Communication"));
+		assertThat(employees.get(0).getExpertises().get(0).getSkills().get(0).getExperience(), is("Senior"));
+		assertThat(employees.get(0).getExpertises().get(0).getSkills().get(0).getYears(), is("25"));
+		assertThat(employees.get(0).getExpertises().get(0).getSkills().get(1), notNullValue());
+		assertThat(employees.get(0).getExpertises().get(0).getSkills().get(1).getName(), is("Excel"));
+		assertThat(employees.get(0).getExpertises().get(0).getSkills().get(1).getExperience(), is("Sophmore"));
+		assertThat(employees.get(0).getExpertises().get(0).getSkills().get(1).getYears(), is("4"));
+		assertThat(employees.get(0).getExpertises().get(1), notNullValue());
+		assertThat(employees.get(0).getExpertises().get(1).getName(), is("Budgeting"));
+		assertThat(employees.get(0).getExpertises().get(1).getSkills(), notNullValue());
+		assertThat(employees.get(0).getExpertises().get(1).getSkills().size(), is(2));
+		assertThat(employees.get(0).getExpertises().get(1).getSkills().get(0), notNullValue());
+		assertThat(employees.get(0).getExpertises().get(1).getSkills().get(0).getName(), is("Accounting"));
+		assertThat(employees.get(0).getExpertises().get(1).getSkills().get(0).getExperience(), is("Senior"));
+		assertThat(employees.get(0).getExpertises().get(1).getSkills().get(0).getYears(), is("15"));
+		assertThat(employees.get(1), notNullValue());
+		assertThat(employees.get(1).getHireDate(), is("02-13-2013"));
+		assertThat(employees.get(1).getId(), is("agt-4158"));
+		assertThat(employees.get(1).getFirstName(), is("John"));
+		assertThat(employees.get(1).getLastName(), is("Taylor"));
+		assertThat(employees.get(1).getAddressList(), notNullValue());
+		assertThat(employees.get(1).getAddressList().size(), is(2));
+		assertThat(employees.get(1).getAddressList().get(0), notNullValue());
+		assertThat(employees.get(1).getAddressList().get(0).getStreet(), is("2278 Germantown Rd."));
+		assertThat(employees.get(1).getAddressList().get(0).getCity(), is("Cordova"));
+		assertThat(employees.get(1).getAddressList().get(0).getState(), is("TN"));
+		assertThat(employees.get(1).getAddressList().get(0).getPostalCode(), is("38016"));
+		assertThat(employees.get(1).getPhone(), notNullValue());
+		assertThat(employees.get(1).getPhone().getMobile(), is("9013838791"));
+		assertThat(employees.get(1).getPhone().getWork(), is("16158239983"));
+		assertThat(employees.get(1).getEmails(), notNullValue());
+		assertThat(employees.get(1).getEmails().size(), is(2));
+		assertThat(employees.get(1).getEmails().get(0), notNullValue());
+		assertThat(employees.get(1).getEmails().get(0).getValue(), is("john.taylor@company.org"));
+		assertThat(employees.get(1).getEmails().get(1), notNullValue());
+		assertThat(employees.get(1).getEmails().get(1).getValue(), is("john.taylor@business.com"));
+		assertThat(employees.get(1).getExpertises(), notNullValue());
+		assertThat(employees.get(1).getExpertises().get(0).getName(), is("Software Developer"));
+		assertThat(employees.get(1).getExpertises().get(0).getSkills(), notNullValue());
+		assertThat(employees.get(1).getExpertises().get(0).getSkills().size(), is(2));
+		assertThat(employees.get(1).getExpertises().get(0).getSkills().get(0), notNullValue());
+		assertThat(employees.get(1).getExpertises().get(0).getSkills().get(0).getName(), is("Java"));
+		assertThat(employees.get(1).getExpertises().get(0).getSkills().get(0).getExperience(), is("Senior"));
+		assertThat(employees.get(1).getExpertises().get(0).getSkills().get(0).getYears(), is("15"));
+		assertThat(employees.get(1).getExpertises().get(0).getSkills().get(1), notNullValue());
+		assertThat(employees.get(1).getExpertises().get(0).getSkills().get(1).getName(), is("SQL"));
+		assertThat(employees.get(1).getExpertises().get(0).getSkills().get(1).getExperience(), is("Sophmore"));
+		assertThat(employees.get(1).getExpertises().get(0).getSkills().get(1).getYears(), is("4"));
 	}
 }

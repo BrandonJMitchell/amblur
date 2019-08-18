@@ -19,5 +19,71 @@
 			<email>john.smith@company.org</email>
 			<email>john.smith@business.com</email>
 		</emails>
+		<expertise>
+			<name>IT Manager</name>
+			<skill>
+				<name>Communication</name>
+				<experience>Senior</experience>
+				<years>25</years>
+			</skill>
+			<skill>
+				<name>Excel</name>
+				<experience>Sophmore</experience>
+				<years>4</years>
+			</skill>
+		</expertise>
+		<expertise>
+			<name>Budgeting</name>
+			<skill>
+				<name>Accounting</name>
+				<experience>Senior</experience>
+				<years>15</years>
+			</skill>
+			<skill>
+				<name>Ethics</name>
+				<experience>Sophmore</experience>
+				<years>4</years>
+			</skill>
+		</expertise>
+	</employee>
+	<employee hireDate="02-13-2013">
+		<id>agt-4158</id>
+		<firstName>John</firstName>
+		<lastName>Taylor</lastName>
+		<addresses>
+			<address>
+				<street>2278 Germantown Rd.</street>
+				<city>Cordova</city>
+				<state>TN</state>
+				<postalCode>38016</postalCode>
+			</address>
+			<address>
+				<street>2518 Canada Rd.</street>
+				<city>Arlinton</city>
+				<state>TN</state>
+				<postalCode>38002</postalCode>
+			</address>
+		</addresses>
+		<phone>
+			<mobile>9013838791</mobile>
+			<work>16158239983</work>
+		</phone>
+		<emails>
+			<email>john.taylor@company.org</email>
+			<email>john.taylor@business.com</email>
+		</emails>
+		<expertise>
+			<name>Software Developer</name>
+			<skill>
+				<name>Java</name>
+				<experience>Senior</experience>
+				<years>15</years>
+			</skill>
+			<skill>
+				<name>SQL</name>
+				<experience>Sophmore</experience>
+				<years>4</years>
+			</skill>
+		</expertise>
 	</employee>
 </employees>

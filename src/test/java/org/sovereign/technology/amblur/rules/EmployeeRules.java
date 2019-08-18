@@ -9,8 +9,10 @@ import java.util.Map;
 import org.sovereign.technology.amblur.model.Address;
 import org.sovereign.technology.amblur.model.Email;
 import org.sovereign.technology.amblur.model.Employee;
+import org.sovereign.technology.amblur.model.Expertise;
 import org.sovereign.technology.amblur.model.Phone;
 import org.sovereign.technology.amblur.model.RulePlan;
+import org.sovereign.technology.amblur.model.Skill;
 
 public class EmployeeRules extends AbstractPaserRules {
 
@@ -18,6 +20,8 @@ public class EmployeeRules extends AbstractPaserRules {
 	private static final String ADDRESS_PREFACE = PREFACE + "+employee/addresses";
 	private static final String PHONE_PREFACE = PREFACE + "+employee/+phone";
 	private static final String EMAIL_PREFACE = PREFACE + "+employee/+emails";
+	private static final String EXPERTISE_PREFACE = PREFACE + "+employee/+expertise";
+	private static final String SKILL_PREFACE = PREFACE + "+employee/+expertise/+skill";
 	
 	public EmployeeRules() {
 		this.root = PREFACE;
@@ -31,10 +35,14 @@ public class EmployeeRules extends AbstractPaserRules {
 	        rulesMap.put(Address.class.getSimpleName(), createAddressRules());
 	        rulesMap.put(Phone.class.getSimpleName(), createPhoneRules());
 	        rulesMap.put(Email.class.getSimpleName(), createEmailsRules());
+	        rulesMap.put(Expertise.class.getSimpleName(), createExpertiseRules());
+	        rulesMap.put(Skill.class.getSimpleName(), createSkillRules());
 	      }
 
 	      return rulesMap;
 	}
+
+
 
 	@Override
 	public Class<Employee> retrieveClass() {
@@ -82,7 +90,16 @@ public class EmployeeRules extends AbstractPaserRules {
 				 		 .clazz(Email.class)
 				 		 .collect(true)
 				 		 .mapper("setEmails")
-				 		 .xpath(EMAIL_PREFACE).build()
+				 		 .xpath(EMAIL_PREFACE).build(),
+				 		 
+		 		RulePlan.builder()
+				 		 .parentClazz(Employee.class)
+				 		 .clazz(Expertise.class)
+				 		 .collect(true)
+				 		 .removeObject(true)
+				 		 .removeList(Skill.class)
+				 		 .mapper("setExpertises")
+				 		 .xpath(EXPERTISE_PREFACE).build()
 				
 			));
 	}
@@ -136,6 +153,46 @@ public class EmployeeRules extends AbstractPaserRules {
 				 		.mapper("setValue")
 				 		.removeObject(true)
 				 		.xpath(EMAIL_PREFACE + "/+email").build()
+		));
+	}
+	
+	private List<RulePlan> createExpertiseRules() {
+		return new ArrayList<>(Arrays.asList(
+
+				RulePlan.builder()
+				 		.clazz(Expertise.class)
+				 		.mapper("setName")
+				 		.xpath(EXPERTISE_PREFACE + "/name").build(),
+				 
+		 		RulePlan.builder()
+		 				.parentClazz(Expertise.class)
+				 		.clazz(Skill.class)
+				 		.collect(true)
+				 		.removeObject(true)
+				 		.mapper("setSkills")
+				 		.xpath(SKILL_PREFACE).build()
+				 		
+		));
+	}
+	
+	private List<RulePlan> createSkillRules() {
+		return new ArrayList<>(Arrays.asList(
+
+				RulePlan.builder()
+				 		.clazz(Skill.class)
+				 		.mapper("setName")
+				 		.xpath(SKILL_PREFACE + "/name").build(),
+				 
+		 		RulePlan.builder()
+				 		.clazz(Skill.class)
+				 		.mapper("setExperience")
+				 		.xpath(SKILL_PREFACE + "/experience").build(),
+				 		
+		 		RulePlan.builder()
+				 		.clazz(Skill.class)
+				 		.mapper("setYears")
+				 		.xpath(SKILL_PREFACE + "/years").build()
+				 		
 		));
 	}
 }

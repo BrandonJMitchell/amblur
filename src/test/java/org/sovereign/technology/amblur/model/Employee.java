@@ -19,4 +19,5 @@ public class Employee implements Serializable {
 	private List<Address> addressList;
 	private Phone phone;
 	private List<Email> emails;
+	private List<Expertise> expertises;
 }

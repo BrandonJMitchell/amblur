@@ -92,17 +92,17 @@ public class ParserRule {
 
 	/**
 	 * 
-	 * Sibling (based off priority)/Child rules (based if parent was found)
-	 * 
-	 */
-
-	/**
-	 * 
 	 * When end tag is found should related object be removed from map
 	 * 
 	 */
 
 	private boolean removeObject;
+	
+	/**
+	 * List of class names that will be removed when the parent object is removed from map
+	 */
+	@Singular
+	private List<Class<?>> removeLists;
 
 	@Singular
 	private List<ParserRule> parserRules;
