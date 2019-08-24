@@ -1,5 +1,5 @@
 # amblur
-Amblur is a Java library that uses a StAX parser and XPaths to extract data.
+Amblur is a Java library that uses a StAX parser and custom XPaths to extract data.
 
 # Introduction
 
@@ -44,3 +44,7 @@ I hope this code sparks joy.
 
 - This release should improve parsing speed due to recursive search being removed.
 - Optional "root" variable added to AbstractParserRule. This allows for shorter xpaths to be used in the rule compared to what could actually be in the xml document.
+
+## Version 1.0.2
+
+- Sub classes of sub classes' List values were all being collected in the same List. To fix this the method removeLists was added to RulePlan and ParserRule. This will remove the current rule's sublist allowing for another rule of the same type to be populated in a new collection.
