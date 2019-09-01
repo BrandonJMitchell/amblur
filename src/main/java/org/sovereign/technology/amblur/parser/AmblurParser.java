@@ -10,6 +10,6 @@ import org.sovereign.technology.amblur.rules.ParserRules;
 
 public interface AmblurParser {
 
-	public <T> List<T> parse(String xml, ParserRules parserRules) throws ParserException, DispatcherException, FactoryException;
+	public <T> List<T> parse(String xml, ParserRules parserRules) throws ParserException, DispatcherException, FactoryException, XMLStreamException;
 	public <T> List<T> traverseXmlElements(ParserManager manager) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, XMLStreamException,InstantiationException, ParserException, DispatcherException, FactoryException;
 }

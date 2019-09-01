@@ -19,7 +19,7 @@ public class AmblurEventFactory {
   
   public ParserEvent getEvent(Integer type) throws FactoryException {
 	  if (map == null) {
-		  throw new FactoryException("Initialize AbleFactory map.");
+		  throw new FactoryException("Initialize AmblurEventFactory map.");
 	  }
 	  Supplier<ParserEvent> supplier = map.get(type);
 	  if (supplier != null) {

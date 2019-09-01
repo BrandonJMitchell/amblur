@@ -5,13 +5,13 @@ import org.sovereign.technology.amblur.factory.AmblurEventFactory;
 
 public abstract class AbstractAmblurParser implements AmblurParser {
 
-	protected AmblurEventFactory ableFactory;
+	protected AmblurEventFactory amblurFactory;
 	protected AmblurEventDispatcher dispatcher;
 	
 	protected ParserManager manager;
 	
-	public AbstractAmblurParser(AmblurEventFactory ableFactory, AmblurEventDispatcher dispatcher) {
-		this.ableFactory = ableFactory;
+	public AbstractAmblurParser(AmblurEventFactory amblurFactory, AmblurEventDispatcher dispatcher) {
+		this.amblurFactory = amblurFactory;
 		this.dispatcher = dispatcher;
 	}
 }

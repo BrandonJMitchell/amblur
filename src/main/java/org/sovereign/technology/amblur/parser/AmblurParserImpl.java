@@ -18,27 +18,23 @@ import org.sovereign.technology.amblur.exception.DispatcherException;
 import org.sovereign.technology.amblur.exception.FactoryException;
 import org.sovereign.technology.amblur.exception.ParserException;
 import org.sovereign.technology.amblur.factory.AmblurEventFactory;
-import org.sovereign.technology.amblur.parliament.Parliament;
 import org.sovereign.technology.amblur.rules.ParserRules;
+import org.sovereign.technology.amblur.utils.AmblurUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 @Component
-public class ExecutiveParser extends AbstractAmblurParser {
+public class AmblurParserImpl extends AbstractAmblurParser {
 
-private static final Logger LOGGER = LoggerFactory.getLogger(ExecutiveParser.class);
-	
-	private ParserManager manager;
+private static final Logger LOGGER = LoggerFactory.getLogger(AmblurParserImpl.class);
 	
 	@Autowired
-	public ExecutiveParser(AmblurEventFactory ableFactory, AmblurEventDispatcher dispatcher) {
-		super(ableFactory, dispatcher);
-
+	public AmblurParserImpl(AmblurEventFactory amblurFactory, AmblurEventDispatcher dispatcher) {
+		super(amblurFactory, dispatcher);
 	}
 
-
-	public <T> List<T> parse(String xml, ParserRules parserRules) throws ParserException, DispatcherException, FactoryException {
+	public <T> List<T> parse(String xml, ParserRules parserRules) throws ParserException, DispatcherException, FactoryException, XMLStreamException {
 
 		long start = System.currentTimeMillis();
 		List<T> result = null;
@@ -62,12 +58,12 @@ private static final Logger LOGGER = LoggerFactory.getLogger(ExecutiveParser.cla
 													 .objListMap( new HashMap<>())
 													 .xpathBuilder(new StringBuilder())
 													 .build();
-				manager = ParserManager.builder()
+				ParserManager manager = ParserManager.builder()
 									   .xmlEventReader(xmlEventReader)
 									   .rules(parserRules.retrieveXpathMap())
 									   .root(parserRules.retrieveRoot())
 									   .context(context)
-									   .separator(Parliament.SEPARATOR)
+									   .separator(AmblurUtils.SEPARATOR)
 									   .useSeparator(false)
 									   .build();
 					   
@@ -79,22 +75,17 @@ private static final Logger LOGGER = LoggerFactory.getLogger(ExecutiveParser.cla
 					| IllegalAccessException | InvocationTargetException 
 					| InstantiationException e) {
 
+				if (xmlEventReader != null) {
+					xmlEventReader.close();
+				}
 				throw new ParserException(e.getMessage(), e);
 
-			} finally {
-				if (xmlEventReader != null) {
-					try {
-						xmlEventReader.close();
-					} catch (XMLStreamException e) {
-						throw new ParserException(e.getMessage(), e);
-					}
-				}
 			}
 
 			long end = System.currentTimeMillis();
 
 			if (LOGGER.isInfoEnabled()) {
-				LOGGER.info("PARSED XML TOTAL TIME (Milliseconds) => " + (end - start));
+				LOGGER.info("PARSED XML TOTAL TIME (Milliseconds) => {}", (end - start));
 			}
 
 		}
@@ -103,34 +94,39 @@ private static final Logger LOGGER = LoggerFactory.getLogger(ExecutiveParser.cla
 
 	}
 
-
-
 	public <T> List<T> traverseXmlElements(ParserManager manager) throws NoSuchMethodException, IllegalAccessException,
 
 			InvocationTargetException, XMLStreamException,
 			InstantiationException, ParserException, DispatcherException, FactoryException {
 
-		XMLEventReader xmlEventReader = manager.getXmlEventReader();
-		
-		while (xmlEventReader.hasNext()) {
-
-			XMLEvent xmlEvent = xmlEventReader.nextEvent();
-			manager.getContext().setXmlEvent(xmlEvent);
-			
-			ParserEvent event = ableFactory.getEvent(xmlEvent.getEventType());
-			if (event != null) {
-				event.setManager(manager);
-				dispatcher.dispatch(event);
-				manager.setUseSeparator(true);
-			}
+		if (manager == null || (manager != null && manager.getContext() == null)) {
+			return null;
 		}
-
-		if (LOGGER.isTraceEnabled()) {
-			Map<Class<?>, List<?>> objListMap = manager.getContext().getObjListMap();
-			Map<Class<?>, ?> objMap = manager.getContext().getObjMap();
-			objMap.forEach((key, value) -> LOGGER.trace(key + " : " + value));
-			objListMap.forEach((key, value) -> LOGGER.trace(key + " :: " + value));
-
+		
+		XMLEventReader xmlEventReader = manager.getXmlEventReader();
+		if (xmlEventReader != null) {
+			while (xmlEventReader.hasNext()) {
+	
+				XMLEvent xmlEvent = xmlEventReader.nextEvent();
+				manager.getContext().setXmlEvent(xmlEvent);
+				
+				ParserEvent event = amblurFactory.getEvent(xmlEvent.getEventType());
+				if (event != null) {
+					event.setManager(manager);
+					dispatcher.dispatch(event);
+					if (!manager.isUseSeparator()) {
+						manager.setUseSeparator(true);
+					}
+				}
+			}
+	
+			if (LOGGER.isTraceEnabled()) {
+				Map<Class<?>, List<?>> objListMap = manager.getContext().getObjListMap();
+				Map<Class<?>, ?> objMap = manager.getContext().getObjMap();
+				objMap.forEach((key, value) -> LOGGER.trace(" {} : {} ", key, value));
+				objListMap.forEach((key, value) -> LOGGER.trace(" {} : {} ", key, value));
+	
+			}
 		}
 
 		return (List<T>) manager.retrieveParentList();

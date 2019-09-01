@@ -13,7 +13,7 @@ import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sovereign.technology.amblur.model.Employee;
-import org.sovereign.technology.amblur.parser.ExecutiveParser;
+import org.sovereign.technology.amblur.parser.AmblurParserImpl;
 import org.sovereign.technology.amblur.rules.EmployeeRules;
 import org.sovereign.technology.amblur.utils.AmblurTestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +32,7 @@ public class EmployeeParserTest {
 	@Autowired
 	private ObjectMapper mapper;
 	@Autowired
-	private ExecutiveParser parser;
+	private AmblurParserImpl parser;
 	
 	private String xml;
 	

@@ -12,6 +12,6 @@ public class AmblurApplication implements CommandLineRunner {
 
 	@Override
 	public void run(String... args) throws Exception {
-		
+		// Nothing to run here.
 	}
 }

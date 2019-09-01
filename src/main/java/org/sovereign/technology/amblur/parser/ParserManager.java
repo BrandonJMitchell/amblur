@@ -6,7 +6,6 @@ import java.util.Map;
 import javax.xml.stream.XMLEventReader;
 
 import org.sovereign.technology.amblur.model.ParserRule;
-import org.sovereign.technology.amblur.parliament.Parliament;
 import lombok.Builder;
 import lombok.Data;
 
@@ -30,7 +29,7 @@ public class ParserManager {
 	}
 	
 	public List<?> retrieveParentList() {
-		if (context != null && context.getParentRule() != null) {
+		if (context != null &&  context.getObjListMap() != null && context.getParentRule() != null) {
 			return context.getObjListMap().get(context.getParentRule().getClazz());
 		}
 		return null;

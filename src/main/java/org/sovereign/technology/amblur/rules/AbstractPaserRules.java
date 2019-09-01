@@ -12,7 +12,8 @@ import org.slf4j.LoggerFactory;
 import org.sovereign.technology.amblur.exception.ParserException;
 import org.sovereign.technology.amblur.model.ParserRule;
 import org.sovereign.technology.amblur.model.RulePlan;
-import org.sovereign.technology.amblur.parliament.Parliament;
+import org.sovereign.technology.amblur.utils.AmblurUtils;
+
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -33,7 +34,7 @@ public abstract class AbstractPaserRules implements ParserRules {
 			getInstance();
 		}
 
-		return Parliament.decree(rulesMap.get(className));
+		return AmblurUtils.decree(rulesMap.get(className));
 	}
 
 	@Override
@@ -47,16 +48,18 @@ public abstract class AbstractPaserRules implements ParserRules {
 
 				rulesMap.values().stream().flatMap(Collection::stream).collect(Collectors.toList());
 
-		return Parliament.decree(plans);
+		return AmblurUtils.decree(plans);
 	}
 	
 	@Override
 	public Map<String, ParserRule> retrieveXpathMap() throws ParserException {
 		Map<String, ParserRule> xpathMap = new HashMap<>();
 		populateXpathMap(this.retrieveRules(), xpathMap);
-//		xpathMap.entrySet().forEach(entry -> {
-//			LOGGER.debug(entry.getKey() + " ::: " + entry.getValue().getXpath());
-//		});
+		if(LOGGER.isTraceEnabled()) {
+			xpathMap.entrySet().forEach(entry -> 
+				LOGGER.trace("{} ::: {}", entry.getKey(), entry.getValue().getXpath())
+			);
+		}
 		return Collections.unmodifiableMap(xpathMap);
 	}
 
@@ -65,7 +68,7 @@ public abstract class AbstractPaserRules implements ParserRules {
 		if (rules != null && !rules.isEmpty() && xpathMap != null) {
 			for(ParserRule rule : rules) {
 				if (rule != null) {
-					String xpath = Parliament.cleanXpath(rule.getXpath());
+					String xpath = AmblurUtils.cleanXpath(rule.getXpath());
 					xpathMap.put(xpath, rule);
 					if (rule.getParserRules() != null && !rule.getParserRules().isEmpty()) {
 						populateXpathMap(rule.getParserRules(), xpathMap);

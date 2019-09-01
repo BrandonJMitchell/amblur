@@ -22,7 +22,7 @@ public class AmblurEventDispatcher extends AbstractParsingDispatcher {
 			throw new DispatcherException("Unable to register handler because handlerMap is null.");
 		}
 		
-		this.handlerMap.put(new Integer(eventType), (ParsingHandler<ParserEvent>) handler);
+		this.handlerMap.put(Integer.valueOf(eventType), (ParsingHandler<ParserEvent>) handler);
 	}
 
 	@Override
@@ -31,12 +31,12 @@ public class AmblurEventDispatcher extends AbstractParsingDispatcher {
 		if (this.handlerMap == null) {
 			throw new DispatcherException("Unable to dispatch event because handlerMap is null.");
 		}
-		ParsingHandler<ParserEvent> handler = this.handlerMap.get(new Integer(event.getType()));
+		ParsingHandler<ParserEvent> handler = this.handlerMap.get(Integer.valueOf(event.getType()));
 		if (handler != null) {
 			handler.onEvent(event);
 		} else {
 			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("A handler for event type " + event.getType() + " has not been registered.");
+				LOGGER.debug("A handler for event type {} has not been registered." , event.getType());
 			}
 		}
 	}
