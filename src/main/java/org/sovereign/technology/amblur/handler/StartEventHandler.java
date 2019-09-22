@@ -15,6 +15,7 @@ import org.sovereign.technology.amblur.parser.ParserContext;
 import org.sovereign.technology.amblur.parser.ParserManager;
 import org.sovereign.technology.amblur.utils.AmblurUtils;
 import org.sovereign.technology.amblur.utils.EventUtils;
+import org.springframework.util.StringUtils;
 
 public class StartEventHandler implements ParsingHandler<StartElementEvent> {
 
@@ -43,31 +44,34 @@ public class StartEventHandler implements ParsingHandler<StartElementEvent> {
 					}
 
 					ParserRule currentRule = manager.getRules().get(AmblurUtils.retrieveKey(xpathBuilder, manager.getRoot()));
-
-					if (currentRule != null) {
-						if (LOGGER.isDebugEnabled()) {
-							LOGGER.debug("-----currentRule FOUND------");
-						}
-
-						if (currentRule.isInstanceRule()) {
-							if (LOGGER.isTraceEnabled()) {
-								LOGGER.trace("-----currentRule isInstanceRule------");
-							}
-							if (currentRule.getParentClazz() != null) {
-								handleSubObject(manager, currentRule, objMap, objListMap);
-							} else {
-								handleParentRule(manager, context, currentRule, objMap, objListMap);
-							}
-						} else {
-							handleNonInstanceRule(manager, objMap, currentRule);
-						}
-					}
+					handleRule(manager, context, objMap, objListMap, currentRule);
 				}
 			}
 		}
-
 	}
 
+	private <T> void handleRule(ParserManager manager, ParserContext context,
+			Map<Class<?>, T> objMap, Map<Class<?>, List<?>> objListMap, ParserRule currentRule) throws InstantiationException, IllegalAccessException, NoSuchMethodException, InvocationTargetException, ParserException, XMLStreamException {
+		if (currentRule != null) {
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("-----currentRule FOUND------");
+			}
+
+			if (currentRule.isInstanceRule()) {
+				if (LOGGER.isTraceEnabled()) {
+					LOGGER.trace("-----currentRule isInstanceRule------");
+				}
+				if (currentRule.getParentClazz() != null) {
+					handleSubObject(manager, currentRule, objMap, objListMap);
+				} else {
+					handleParentRule(manager, context, currentRule, objMap, objListMap);
+				}
+			} else {
+				handleNonInstanceRule(manager, objMap, currentRule);
+			}
+		}
+	}
+	
 	private <T> void handleNonInstanceRule(ParserManager manager,
 			Map<Class<?>, T> objMap, ParserRule currentRule)
 			throws NoSuchMethodException, IllegalAccessException,
@@ -125,13 +129,14 @@ public class StartEventHandler implements ParsingHandler<StartElementEvent> {
 
 		if (subObjList == null) {
 
-			subObjList = (List<T>) EventUtils
-					.genericList();
-
+			subObjList = (List<T>) EventUtils.genericList();
 			EventUtils.setSubList(obj, subObjList, currentRule);
-
 			objListMap.put((Class<T>) currentRule.getClazz(), subObjList);
 
+		}
+		
+		if(!StringUtils.isEmpty(currentRule.getSubMapper())) {
+			EventUtils.setSubValue(manager, currentRule, obj);
 		}
 
 		EventUtils.setElementValue(manager, currentRule, subObj);

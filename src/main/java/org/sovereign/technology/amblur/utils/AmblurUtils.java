@@ -1,9 +1,14 @@
 package org.sovereign.technology.amblur.utils;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
+
+import javax.xml.stream.XMLStreamConstants;
+import javax.xml.stream.events.XMLEvent;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,7 +27,7 @@ public class AmblurUtils {
 	
 	private AmblurUtils() {}
 
-	public static List<ParserRule> decree(List<RulePlan> plans) throws ParserException {
+	public static List<ParserRule> createParserRules(List<RulePlan> plans) throws ParserException {
 
 		List<ParserRule> result = null;
 
@@ -31,7 +36,7 @@ public class AmblurUtils {
 			List<ParserRule> rules = new ArrayList<>();
 
 			for (RulePlan rulePlan : plans) {
-
+				checkRulePlan(rulePlan);
 				if (LOGGER.isTraceEnabled()) {
 					LOGGER.trace("decree current xpath => {}", rulePlan.getXpath());
 				}
@@ -89,20 +94,14 @@ public class AmblurUtils {
 							isNew = true;
 
 							currentRule = ParserRule.builder()
-
-									.xpath(xpaths.toString())
-
-									.elementName(element)
-
-									.clazz(rulePlan.getClazz())
-
-									.parentClazz(rulePlan.getParentClazz())
-
-									.removeObject(rulePlan.isRemoveObject())
-									
-									.removeLists(rulePlan.getRemoveLists())
-
-									.build();
+													.xpath(xpaths.toString())
+													.elementName(element)
+													.clazz(rulePlan.getClazz())
+													.parentClazz(rulePlan.getParentClazz())
+													.removeObject(rulePlan.isRemoveObject())
+													.action(rulePlan.getAction())
+													.removeLists(rulePlan.getRemoveLists())
+													.build();
 
 							if (LOGGER.isTraceEnabled()) {
 								LOGGER.trace("NEW RULE => {} ::: {} ", currentRule.getElementName(), currentRule.getXpath());
@@ -129,7 +128,7 @@ public class AmblurUtils {
 							}
 
 							currentRule.setMapper(rulePlan.getMapper());
-
+							currentRule.setSubMapper(rulePlan.getSubMapper());
 							currentRule.setCollect(rulePlan.isCollect());
 
 						}
@@ -320,5 +319,105 @@ public class AmblurUtils {
 
 	}
 	
+	public static void checkRulePlan(RulePlan plan) throws ParserException {
 
+		if (plan == null
+				|| (plan.getClazz() == null && plan.getParentClazz() == null)) {
+			throw new ParserException(
+					"RulePlan must have a class or parent class: " + plan);
+		}
+
+		if (plan.getParentClazz() != null) {
+			checkMethod(plan.getParentClazz(), plan.getMapper());
+			if (!StringUtils.isEmpty(plan.getAction())) {
+				checkMethod(plan.getParentClazz(), plan.getAction());
+			}
+			if (!StringUtils.isEmpty(plan.getSubMapper())) {
+				checkMethod(plan.getParentClazz(), plan.getSubMapper());
+			}
+		} else if (plan.getClazz() != null) {
+			checkMethod(plan.getClazz(), plan.getMapper());
+		}
+	}
+
+	public static void checkMethod(Class<?> clazz, String methodName)
+			throws ParserException {
+		Optional<Method> optMethod = Optional.empty();
+		if (clazz != null && !StringUtils.isEmpty(methodName)) {
+			List<Method> list = Arrays.asList(clazz.getMethods());
+			if (list != null) {
+				optMethod = list.stream()
+						.filter(method -> method != null
+								&& !StringUtils.isEmpty(method.getName())
+								&& method.getName().equals(methodName))
+						.findFirst();
+			}
+			
+			if (!optMethod.isPresent()) {
+				throw new ParserException("This RulePlan's method, " + methodName
+						+ ", does not exist in the class: " + clazz.getSimpleName());
+			}
+		}
+	}
+	
+	  public static void printEventType(XMLEvent xmlEvent) {
+
+		switch (xmlEvent.getEventType()) {
+
+			case XMLStreamConstants.START_ELEMENT :
+				LOGGER.trace("Start Element: {}",
+						xmlEvent.asStartElement().getName().getLocalPart());
+				break;
+
+			case XMLStreamConstants.END_ELEMENT :
+				LOGGER.trace("End Element: {}",
+						xmlEvent.asEndElement().getName().getLocalPart());
+				break;
+
+			case XMLStreamConstants.SPACE :
+				LOGGER.trace("Space");
+				break;
+
+			case XMLStreamConstants.CHARACTERS :
+				LOGGER.trace("Characters: {}",
+						xmlEvent.asCharacters().getData());
+				break;
+
+			case XMLStreamConstants.PROCESSING_INSTRUCTION :
+				LOGGER.trace("Processing Instrcutions");
+				break;
+
+			case XMLStreamConstants.CDATA :
+				LOGGER.trace("CDATA");
+				break;
+
+			case XMLStreamConstants.COMMENT :
+				LOGGER.trace("Comment");
+				break;
+
+			case XMLStreamConstants.DTD :
+				LOGGER.trace("DTD");
+				break;
+
+			case XMLStreamConstants.ENTITY_REFERENCE :
+				LOGGER.trace("Entity Reference");
+				break;
+
+			case XMLStreamConstants.ENTITY_DECLARATION :
+				LOGGER.trace("Entity Declaration");
+				break;
+
+			case XMLStreamConstants.START_DOCUMENT :
+				LOGGER.trace("Start Document");
+				break;
+
+			case XMLStreamConstants.END_DOCUMENT :
+				LOGGER.trace("End Document");
+				break;
+				
+			default :
+				LOGGER.trace("UNKNOWN EVENT.");
+				break;
+		}
+	}
 }

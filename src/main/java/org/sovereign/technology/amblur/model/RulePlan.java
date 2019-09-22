@@ -11,6 +11,8 @@ import lombok.Singular;
 public class RulePlan {
 	private String xpath;
 	private String mapper;
+	private String subMapper;
+	private String action;
 	private Class<?> clazz;
 	private Class<?> parentClazz;
 	private boolean collect;

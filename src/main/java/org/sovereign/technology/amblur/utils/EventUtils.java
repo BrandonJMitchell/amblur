@@ -17,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sovereign.technology.amblur.model.ParserRule;
 import org.sovereign.technology.amblur.parser.ParserManager;
+import org.springframework.util.StringUtils;
 
 public class EventUtils {
 
@@ -98,20 +99,49 @@ public class EventUtils {
 			throws IllegalAccessException, InvocationTargetException,
 			NoSuchMethodException {
 
-		if (rule != null && obj != null && list != null) {
+		if (rule != null && rule.getMapper() != null && obj != null && list != null) {
 
 			Method method = rule.getParentClazz().getMethod(rule.getMapper(),
 					List.class);
 
 			method.invoke(obj, list);
 
-		} else {
-			if (LOGGER.isErrorEnabled()) {
-				LOGGER.error("****ERROR***** setSubList obj => {} list => {} rule = >{} ", obj, list, rule);
-			}
-
+		} else if(rule != null && rule.getMapper() == null 
+							   && rule.getSubMapper() == null
+							   & LOGGER.isErrorEnabled()) {
+			LOGGER.error("****ERROR***** setSubList obj => {} list => {} rule = >{} ", obj, list, rule);
 		}
 
+	}
+	
+	public static <T> void setSubValue(ParserManager manager, ParserRule rule, T obj) 
+			throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, XMLStreamException {
+		XMLEventReader xmlEventReader = manager.getXmlEventReader();
+		XMLEvent xmlEvent = manager.getContext().getXmlEvent();
+		if (LOGGER.isTraceEnabled()) {
+			LOGGER.trace("-----setSubValue-----");
+		}
+		if(obj != null && rule != null && rule.isCollect() 
+					   && !StringUtils.isEmpty(rule.getParentClazz()) 
+					   && !StringUtils.isEmpty(rule.getSubMapper())) {
+			Method method = rule.getParentClazz().getMethod(rule.getSubMapper(), String.class);
+			if (rule.isAttribute()) {
+				String data = retrieveAttribute(xmlEvent.asStartElement(), rule.getElementName());
+				method.invoke(obj, data);
+			} else {
+				if (xmlEventReader.hasNext()) {
+					XMLEvent xmlPeekEvent = xmlEventReader.peek();
+					if (xmlPeekEvent.isCharacters()) {
+						xmlEvent = xmlEventReader.nextEvent();
+						String data = xmlEvent.asCharacters().getData();
+						method.invoke(obj, data);
+						manager.getContext().setXmlEvent(xmlEvent);
+					} else if (xmlPeekEvent.isEndElement()) {
+						method.invoke(obj, "");
+					}
+				}
+			}
+		}
 	}
 	
 	public static <T> void setElementValue(ParserManager manager, ParserRule rule, T obj)
@@ -122,8 +152,8 @@ public class EventUtils {
 		
 		rule.setFound(true);
 
-		if (rule.getMapper() != null && obj != null && !rule.isCollect()
-
+		if (rule.getMapper() != null && obj != null 
+				&& !rule.isCollect()
 				&& rule.getParentClazz() == null) {
 
 			if (LOGGER.isTraceEnabled()) {

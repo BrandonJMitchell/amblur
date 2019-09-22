@@ -1,6 +1,7 @@
 package org.sovereign.technology.amblur.model;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 import lombok.Data;
@@ -20,4 +21,26 @@ public class Employee implements Serializable {
 	private Phone phone;
 	private List<Email> emails;
 	private List<Expertise> expertises;
+	private List<Content> contents;
+	private List<Table> tables;
+	
+	public void addToContents (String value) {
+		if(contents == null) {
+			contents = new ArrayList<>();
+		}
+		Content data = new Content();
+		data.setValue(value);
+		
+		contents.add(data);
+	}
+	
+	public void setTableContent() {
+		if (contents != null && !contents.isEmpty() && tables != null && !tables.isEmpty()) {
+			Table table = tables.get(tables.size() - 1);
+			Content data = contents.get(contents.size() - 1);
+			if(data != null) {
+				table.setContent(data.getValue());
+			}
+		}
+	}
 }

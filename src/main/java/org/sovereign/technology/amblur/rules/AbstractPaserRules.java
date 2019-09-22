@@ -34,7 +34,7 @@ public abstract class AbstractPaserRules implements ParserRules {
 			getInstance();
 		}
 
-		return AmblurUtils.decree(rulesMap.get(className));
+		return AmblurUtils.createParserRules(rulesMap.get(className));
 	}
 
 	@Override
@@ -48,7 +48,7 @@ public abstract class AbstractPaserRules implements ParserRules {
 
 				rulesMap.values().stream().flatMap(Collection::stream).collect(Collectors.toList());
 
-		return AmblurUtils.decree(plans);
+		return AmblurUtils.createParserRules(plans);
 	}
 	
 	@Override

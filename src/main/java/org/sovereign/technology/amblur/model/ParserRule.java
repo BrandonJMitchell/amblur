@@ -33,6 +33,20 @@ public class ParserRule {
 	 */
 
 	private String mapper;
+	
+	/**
+	 * 
+	 * the name of the setMethod the parser should use to set value of the sub object
+	 * 
+	 */
+	
+	private String subMapper;
+	
+	/**
+	 * calls method on end event
+	 */
+	
+	private String action;
 
 	/**
 	 * 

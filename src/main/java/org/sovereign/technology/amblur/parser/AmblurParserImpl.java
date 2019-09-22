@@ -99,7 +99,7 @@ private static final Logger LOGGER = LoggerFactory.getLogger(AmblurParserImpl.cl
 			InvocationTargetException, XMLStreamException,
 			InstantiationException, ParserException, DispatcherException, FactoryException {
 
-		if (manager == null || (manager != null && manager.getContext() == null)) {
+		if (manager == null || (manager.getContext() == null)) {
 			return null;
 		}
 		
@@ -108,6 +108,9 @@ private static final Logger LOGGER = LoggerFactory.getLogger(AmblurParserImpl.cl
 			while (xmlEventReader.hasNext()) {
 	
 				XMLEvent xmlEvent = xmlEventReader.nextEvent();
+				if(LOGGER.isTraceEnabled()) {
+					AmblurUtils.printEventType(xmlEvent);
+				}
 				manager.getContext().setXmlEvent(xmlEvent);
 				
 				ParserEvent event = amblurFactory.getEvent(xmlEvent.getEventType());
