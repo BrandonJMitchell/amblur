@@ -33,6 +33,8 @@ public class EmployeeParserTest {
 	private ObjectMapper mapper;
 	@Autowired
 	private AmblurParserImpl parser;
+	@Autowired
+	private EmployeeRules employeeRules;
 	
 	private String xml;
 	
@@ -47,8 +49,7 @@ public class EmployeeParserTest {
 	
 	@Test
 	public void employeeParserTest() throws Exception {
-		List<Employee> employees = parser.parse(xml, new EmployeeRules());
-		
+		List<Employee> employees = parser.parse(xml, employeeRules);	
 		
 		assertThat(employees, notNullValue());
 		if (LOGGER.isInfoEnabled()) {
@@ -153,5 +154,23 @@ public class EmployeeParserTest {
 		assertThat(employees.get(1).getExpertises().get(0).getSkills().get(1).getName(), is("SQL"));
 		assertThat(employees.get(1).getExpertises().get(0).getSkills().get(1).getExperience(), is("Sophmore"));
 		assertThat(employees.get(1).getExpertises().get(0).getSkills().get(1).getYears(), is("4"));
+		assertThat(employees.get(1).getTables(), notNullValue());
+		assertThat(employees.get(1).getTables().size(), is(1));
+		assertThat(employees.get(1).getTables().get(0), notNullValue());
+		assertThat(employees.get(1).getTables().get(0).getContent(), is("Common Hobbies"));
+		assertThat(employees.get(1).getTables().get(0).getTableHeader(), notNullValue());
+		assertThat(employees.get(1).getTables().get(0).getTableHeader().getHeaders(), notNullValue());
+		assertThat(employees.get(1).getTables().get(0).getTableHeader().getHeaders().size(), is(3));
+		assertThat(employees.get(1).getTables().get(0).getTableHeader().getHeaders().get(0).getValue(), is("Hobbies"));
+		assertThat(employees.get(1).getTables().get(0).getTableHeader().getHeaders().get(1).getValue(), is("Acquire Date"));
+		assertThat(employees.get(1).getTables().get(0).getTableHeader().getHeaders().get(2).getValue(), is("Status"));
+		assertThat(employees.get(1).getTables().get(0).getRows(), notNullValue());
+		assertThat(employees.get(1).getTables().get(0).getRows().size(), is(1));
+		assertThat(employees.get(1).getTables().get(0).getRows().get(0), notNullValue());
+		assertThat(employees.get(1).getTables().get(0).getRows().get(0).getValues(), notNullValue());
+		assertThat(employees.get(1).getTables().get(0).getRows().get(0).getValues().size(), is(3));
+		assertThat(employees.get(1).getTables().get(0).getRows().get(0).getValues().get(0).getValue(), is("Sleeping"));
+		assertThat(employees.get(1).getTables().get(0).getRows().get(0).getValues().get(1).getValue(), is("July 1st, 1971"));
+		assertThat(employees.get(1).getTables().get(0).getRows().get(0).getValues().get(2).getValue(), is("Intermediate"));
 	}
 }

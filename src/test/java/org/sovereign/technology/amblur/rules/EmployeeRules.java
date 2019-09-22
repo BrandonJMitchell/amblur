@@ -19,7 +19,9 @@ import org.sovereign.technology.amblur.model.TableBodyData;
 import org.sovereign.technology.amblur.model.TableBodyRow;
 import org.sovereign.technology.amblur.model.TableHeader;
 import org.sovereign.technology.amblur.model.TableHeaderData;
+import org.springframework.stereotype.Component;
 
+@Component
 public class EmployeeRules extends AbstractPaserRules {
 
 	private static final String PREFACE = "employees";
