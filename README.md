@@ -30,10 +30,16 @@ In Java there are three types of parsers: DOM, SAX, and StAX. DOM parsers work o
 	    }
     }
     
+  Or: Setup a simple configuration file and then autowire AmblurParser in your application
+  
+    @Configuration
+    @ComponentScan("io.github.brandonjmitchell.amblur")
+    public class ParserConfig {}
+    
   Use the following on the lastest version if you want to add events and handlers.
    
 	@Bean
-	public AmblurParserImpl amblurParserImpl() {
+	public AmblurParser amblurParser() {
 		return new AmblurParserImpl(setupEventfactory(), setupDispatchers());
 	}
 	@Primary
@@ -88,3 +94,7 @@ I hope this code sparks joy.
 - Methods are made smaller for readability and simplification.
 - Classes were renamed: ExecutiveParser is now AmblurParserImpl. Parliament is now AmblurUtils and was split into EventUtils.
 - Some XML may contain HTML so two new methods were added to RulePlan and ParserRule to help with this: subMapper and action. See tests for examples of use.
+
+## Version 1.1.3
+
+- Added configuration so this application can be used as a library.
